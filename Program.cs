@@ -10,9 +10,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<Supabase.Client>(_ => 
 new Supabase.Client(
-    //Insert SupabaseURL here
+    //Insert SupabaseURL below
    "SupabaseURL",
-   //Insert SupabaseAPIKey here
+   //Insert SupabaseAPIKey below
     "SupabaseAPIKey",
     new SupabaseOptions
     {
