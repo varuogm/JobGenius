@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using lupsSupabaseApi.Models;
 using Supabase;
 
@@ -9,8 +10,10 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<Supabase.Client>(_ => 
 new Supabase.Client(
-   "SUPABASEURL",
-    "SUPABASEAPIKEY",
+    //Insert SupabaseURL here
+   "SupabaseURL",
+   //Insert SupabaseAPIKey here
+    "SupabaseAPIKey",
     new SupabaseOptions
     {
         AutoRefreshToken = true,
@@ -25,6 +28,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapGet("/jobdescriptions", async(
+    Supabase.Client client) =>
+    {
+        var response = await client
+            .From<JobDescription>()
+            .Get();
+        
+        var jobdescriptionsString = response.Content;
+        var jobdescriptions = JsonConvert.DeserializeObject<List<JobDescriptionObject>>(jobdescriptionsString);
+
+        return Results.Ok(jobdescriptions);
+    });
 
 app.MapGet("/jobdescriptions/{id}", async(
     Guid id, 
