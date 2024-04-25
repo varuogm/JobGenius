@@ -7,12 +7,12 @@ namespace lupsSupabaseApi.Models;
 public class JobDescription : BaseModel
 {
     [PrimaryKey("id", false)]
-    public Guid Id {get; set;}
+    public int Id { get; set; }
     [Column("url")]
-    public String? Url {get; set;}
+    public string? Url { get; set; }
     [Column("job_text")]
-    public String? JobText {get; set;}
+    public string? JobText { get; set; }
     [Column("created_at")]
-    public DateTime CreatedAt {get; set;}
+    public DateTime CreatedAt { get; set; }
 }
 
