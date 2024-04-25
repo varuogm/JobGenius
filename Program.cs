@@ -1,6 +1,6 @@
-using Newtonsoft.Json;
-using lupsSupabaseApi.Models;
 using Supabase;
+using Newtonsoft.Json;
+using JobGeniusApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = new ConfigurationBuilder()
@@ -41,7 +41,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("gouravSupportedOrigins");
 
 //API Routes
-app.MapGet("/jobdescriptions", async (Supabase.Client client) =>
+app.MapGet("/allListedJobs", async (Supabase.Client client) =>
     {
         try
         {
@@ -57,7 +57,7 @@ app.MapGet("/jobdescriptions", async (Supabase.Client client) =>
         }
     });
 
-app.MapGet("/jobdescriptions/{id}", async (int id, Supabase.Client client) =>
+app.MapGet("/getJobById/{id}", async (int id, Supabase.Client client) =>
 {
     try
     {
@@ -73,9 +73,9 @@ app.MapGet("/jobdescriptions/{id}", async (int id, Supabase.Client client) =>
         var jobDescriptionResponse = new JobDescriptionResponse
         {
             Id = jobDescription.Id,
-            Url = jobDescription.Url,
-            JobText = jobDescription.JobText,
-            CreatedAt = jobDescription.CreatedAt,
+            jobUrl = jobDescription.jobUrl,
+            company = jobDescription.company,
+            creationTime = jobDescription.creationTime,
         };
         return Results.Ok(jobDescriptionResponse);
     }
@@ -86,12 +86,13 @@ app.MapGet("/jobdescriptions/{id}", async (int id, Supabase.Client client) =>
 
 });
 
-app.MapPost("/jobdescriptions", async (CreateJobDescriptionRequest request, Supabase.Client client) =>
+app.MapPost("/addNewJob", async (CreateJobDescriptionRequest request, Supabase.Client client) =>
 {
     var jobDescription = new JobDescription
     {
-        Url = request.Url,
-        JobText = request.JobText,
+        jobUrl = request.jobUrl,
+        company = request.company,
+        creationTime = DateTime.Now
     };
 
     try
@@ -108,7 +109,7 @@ app.MapPost("/jobdescriptions", async (CreateJobDescriptionRequest request, Supa
 
 });
 
-app.MapDelete("/jobdescriptions/{id}", async (int jobId, Supabase.Client client) =>
+app.MapDelete("/deleteJobById/{id}", async (int jobId, Supabase.Client client) =>
 {
     try
     {

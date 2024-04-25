@@ -1,7 +1,7 @@
 public class JobDescriptionDTO
 {
     public int Id { get; init; }
-    public string? Url { get; init; }
-    public string? Job_text { get; init; }
-    public DateTime Created_at { get; init; }
+    public string? jobUrl { get; init; }
+    public string? company { get; init; }
+    public DateTime creationTime { get; init; }
 }
