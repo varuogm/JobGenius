@@ -5,5 +5,7 @@ public class JobDescriptionResponse
 
     public string? company { get; set; }
 
+    public string? comment { get; set; }
+
     public DateTime creationTime { get; set; }
 }

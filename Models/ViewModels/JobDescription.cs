@@ -12,6 +12,8 @@ public class JobDescription : BaseModel
     public string? jobUrl { get; set; }
     [Column("company")]
     public string? company { get; set; }
+    [Column("comment")]
+    public string? comment { get; set; }
     [Column("creationTime")]
     public DateTime creationTime { get; set; }
 }

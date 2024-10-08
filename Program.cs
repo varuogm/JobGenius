@@ -4,7 +4,8 @@ using JobGeniusApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = new ConfigurationBuilder()
-            .AddUserSecrets<Program>()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .Build();
 
 // Add services to the container.
@@ -12,14 +13,17 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(
         name: "gouravSupportedOrigins",
-        builder => { builder.WithOrigins("http://localhost:5154"); });
+        builder => { builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); });
 });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<IConfiguration>(config);
 
-string SupabaseURL = config["SupabaseURL"];
-string SupabaseAPIKey = config["SupabaseAPIKey"];
+// Add the following code after the line builder.Services.AddScoped<Supabase.Client>(_ => ...
+var SupabaseURL = config.GetConnectionString("SupabaseURL");
+var SupabaseAPIKey = config.GetConnectionString("SupabaseAPIKey");
+
 
 builder.Services.AddScoped<Supabase.Client>(_ =>
 new Supabase.Client(
@@ -41,7 +45,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("gouravSupportedOrigins");
 
 //API Routes
-app.MapGet("/allListedJobs", async (Supabase.Client client) =>
+app.MapGet("/jobs", async (Supabase.Client client) =>
     {
         try
         {
@@ -57,7 +61,7 @@ app.MapGet("/allListedJobs", async (Supabase.Client client) =>
         }
     });
 
-app.MapGet("/getJobById/{id}", async (int id, Supabase.Client client) =>
+app.MapGet("/job/{id}", async (int id, Supabase.Client client) =>
 {
     try
     {
@@ -76,6 +80,7 @@ app.MapGet("/getJobById/{id}", async (int id, Supabase.Client client) =>
             jobUrl = jobDescription.jobUrl,
             company = jobDescription.company,
             creationTime = jobDescription.creationTime,
+            comment = jobDescription.comment
         };
         return Results.Ok(jobDescriptionResponse);
     }
@@ -86,12 +91,13 @@ app.MapGet("/getJobById/{id}", async (int id, Supabase.Client client) =>
 
 });
 
-app.MapPost("/addNewJob", async (CreateJobDescriptionRequest request, Supabase.Client client) =>
+app.MapPost("/add", async (CreateJobDescriptionRequest request, Supabase.Client client) =>
 {
     var jobDescription = new JobDescription
     {
         jobUrl = request.jobUrl,
         company = request.company,
+        comment = request.comment,
         creationTime = DateTime.Now
     };
 
@@ -109,21 +115,19 @@ app.MapPost("/addNewJob", async (CreateJobDescriptionRequest request, Supabase.C
 
 });
 
-app.MapDelete("/deleteJobById/{id}", async (int jobId, Supabase.Client client) =>
+app.MapDelete("/delete/{id}", async (int id, Supabase.Client client) =>
 {
     try
     {
-        await client.From<JobDescription>().Where(item => item.Id == jobId).Delete();
+        await client.From<JobDescription>().Where(item => item.Id == id).Delete();
     }
     catch (Exception ex)
     {
         return Results.BadRequest("Could not delete the job listing" + ex.Message);
     }
 
-    return Results.Ok("Id has been deleted");
+    return Results.Ok($"Id- {id} has been deleted");
 });
-
-
 
 app.UseHttpsRedirection();
 
